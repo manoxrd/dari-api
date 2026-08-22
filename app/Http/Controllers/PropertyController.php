@@ -41,7 +41,7 @@ class PropertyController extends Controller
    */
   public function show(Property $property)
   {
-    //
+    return new PropertyResource($property);
   }
 
   /**

@@ -12,5 +12,6 @@ Route::get('user', function (Request $request) {
 Route::middleware('throttle:60,1')->prefix('v1')->group(function() {
 
   Route::get('properties', [PropertyController::class, 'index']);
+  Route::get('properties/{property}', [PropertyController::class, 'show']);
 });
 
