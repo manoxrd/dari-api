@@ -21,6 +21,7 @@ class PropertyFactory extends Factory
   public function definition(): array
   {
     return [
+      'thumbnail' => fake()->imageUrl(),
       'title' => fake()->jobTitle(),
       'user_id' => User::factory(),
       'description' => fake()->realText(),

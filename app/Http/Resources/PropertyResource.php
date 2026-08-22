@@ -17,6 +17,7 @@ class PropertyResource extends JsonResource
 
     return [
       'id' => $this->id,
+      'thumbnail_url' => $this->thumbnail_url,
       'title' => $this->title,
       'description' => $this->description,
       'price' => (float) $this->price,

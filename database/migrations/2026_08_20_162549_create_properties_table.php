@@ -16,6 +16,7 @@ return new class extends Migration
     Schema::create('properties', function (Blueprint $table) {
       $table->id();
       $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
+      $table->string('thumbnail');
       $table->string('title');
       $table->text('description')->nullable();
       $table->decimal('price', 12, 2);

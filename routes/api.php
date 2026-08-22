@@ -13,5 +13,11 @@ Route::middleware('throttle:60,1')->prefix('v1')->group(function() {
 
   Route::get('properties', [PropertyController::class, 'index']);
   Route::get('properties/{property}', [PropertyController::class, 'show']);
+
+  Route::middleware('auth:sanctum')->group(function () {
+    
+    Route::post('properties', [PropertyController::class, 'store']);
+  });
 });
+
 

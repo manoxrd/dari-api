@@ -7,6 +7,7 @@ use App\Http\Requests\StorePropertyRequest;
 use App\Http\Requests\UpdatePropertyRequest;
 use App\Http\Resources\PropertyResource;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class PropertyController extends Controller
 {
@@ -33,7 +34,20 @@ class PropertyController extends Controller
    */
   public function store(StorePropertyRequest $request)
   {
-    //
+    $validated = $request->validated();
+
+    if($request->hasFile('thumbnail')) {
+
+      $validated['thumbnail'] = $request->file('thumbnail')->store('thumbnails', 'public');
+    } else {
+      unset($validated['thumbnail']);
+    }
+
+    $property = $request->user()->properties()->create($validated);
+
+    return (new PropertyResource($property))
+      ->response()
+      ->setStatusCode(201);
   }
 
   /**
