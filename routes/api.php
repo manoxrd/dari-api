@@ -9,14 +9,16 @@ Route::get('user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 
-Route::middleware('throttle:60,1')->prefix('v1')->group(function() {
+Route::middleware('throttle:60,1')->name('v1.')->prefix('v1')->group(function() {
 
-  Route::get('properties', [PropertyController::class, 'index']);
-  Route::get('properties/{property}', [PropertyController::class, 'show']);
+  Route::get('properties', [PropertyController::class, 'index'])->name('properties.index');
+  Route::get('properties/{property}', [PropertyController::class, 'show'])->name('properties.show');
 
   Route::middleware('auth:sanctum')->group(function () {
     
-    Route::post('properties', [PropertyController::class, 'store']);
+    Route::post('properties', [PropertyController::class, 'store'])->name('properties.store');
+
+    Route::patch('properties/{property}', [PropertyController::class, 'update'])->name('properties.update');
   });
 });
 

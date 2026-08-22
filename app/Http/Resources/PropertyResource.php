@@ -26,6 +26,10 @@ class PropertyResource extends JsonResource
       'bathrooms' => $this->bathrooms,
       'purpose' => $this->purpose,
       'listed_on' => $this->created_at->format('M d, Y'),
+      'can' => $this->when($request->routeIs('v1.properties.show'), fn() => [
+        'update' => $request->user()?->can('update', $this->resource),
+        'delete' => $request->user()?->can('delete', $this->resource),
+      ])
     ];
   }
 }
