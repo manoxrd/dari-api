@@ -15,6 +15,8 @@ Route::middleware('throttle:60,1')->name('v1.')->prefix('v1')->group(function() 
   Route::get('properties/trashed', [TrashedPropertyController::class, 'index'])->name('properties.trashed');
 
   Route::post('properties/{property}/restore', [TrashedPropertyController::class, 'restore'])->name('properties.restore')->withTrashed();
+
+  Route::delete('properties/{property}/force', [TrashedPropertyController::class, 'forceDelete'])->name('properties.forceDelete')->withTrashed();
   
   Route::get('properties', [PropertyController::class, 'index'])->name('properties.index');
   Route::get('properties/{property}', [PropertyController::class, 'show'])->name('properties.show');

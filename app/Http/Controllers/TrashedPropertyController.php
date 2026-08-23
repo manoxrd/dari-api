@@ -37,4 +37,13 @@ class TrashedPropertyController extends Controller
 
     return new PropertyResource($property);
   }
+
+  public function forceDelete(Request $request, Property $property) {
+    if($request->user()->cannot('forceDelete', $property)) abort(403);
+    if(!$property->trashed()) return response(['message' => "This isn't a trashed property"], 422);
+
+    $property->forceDelete();
+
+    return response()->noContent();
+  }
 }

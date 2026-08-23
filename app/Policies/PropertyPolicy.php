@@ -29,8 +29,8 @@ class PropertyPolicy
     return $user->id === $property->user_id || $user->role === UserRole::Admin->value;
   }
 
-  public function forceDelete(User $user, Property $property): bool
+  public function forceDelete(User $user): bool
   {
-    return false;
+    return $user->role === UserRole::Admin->value;
   }
 }
