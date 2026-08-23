@@ -15,7 +15,7 @@ class PropertyController extends Controller
   {
     $perPage = min($request->integer('per_page', 15), 30);
 
-    return PropertyResource::collection(Property::paginate($perPage));
+    return PropertyResource::collection(Property::with('user')->paginate($perPage));
   }
 
   public function store(StorePropertyRequest $request)
@@ -38,8 +38,7 @@ class PropertyController extends Controller
 
   public function show(Property $property)
   {
-    // $user = $property->user;
-    // dd($user);
+    $property->load('user');
     return new PropertyResource($property);
   }
 
@@ -64,5 +63,9 @@ class PropertyController extends Controller
     return new PropertyResource($property)->response();
   }
 
-  public function destroy(Property $property) {}
+  public function destroy(Property $property) {
+    
+    $property->delete();
+    return response()->noContent();
+  }
 }
