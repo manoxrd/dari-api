@@ -23,7 +23,7 @@ class PropertyController extends Controller
     $properties = Property::when($request->purpose, fn($query, $value) => $query->where('purpose', $value))
       ->when($request->bathrooms, fn($query, $value) => $query->where('bathrooms', $value))
       ->when($request->bedrooms, fn($query, $value) => $query->where('bedrooms', $value))
-      ->when($price_range, fn($query, array $price) => $query->where('price', '>=', $price['min'])->where('price', '<=', $price['max']))
+      ->when(array_filter($price_range), fn($query, array $price) => $query->whereBetween('price', $price))
       ->with('user')->paginate($perPage)->withQueryString();
 
     return PropertyResource::collection($properties);
