@@ -28,4 +28,13 @@ class TrashedPropertyController extends Controller
 
     return PropertyResource::collection($properties);
   }
+
+  public function restore(Request $request, Property $property) {
+    if($request->user()->cannot('restore', $property)) abort(403);
+    if(!$property->trashed()) return response(['message' => "This isn't a trashed property"], 422);
+
+    $property->restore();
+
+    return new PropertyResource($property);
+  }
 }
