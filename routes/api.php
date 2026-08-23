@@ -11,15 +11,18 @@ Route::get('user', function (Request $request) {
 
 
 Route::middleware('throttle:60,1')->name('v1.')->prefix('v1')->group(function() {
-
+  
+  Route::get('properties/trashed', [TrashedPropertyController::class, 'index'])->name('properties.trashed');
+  
   Route::get('properties', [PropertyController::class, 'index'])->name('properties.index');
   Route::get('properties/{property}', [PropertyController::class, 'show'])->name('properties.show');
-
+  
   Route::middleware('auth:sanctum')->group(function () {
     
     Route::post('properties', [PropertyController::class, 'store'])->name('properties.store');
     Route::patch('properties/{property}', [PropertyController::class, 'update'])->name('properties.update');
     Route::delete('properties/{property}', [PropertyController::class, 'destroy'])->name('properties.destroy');
+ 
   });
 });
 

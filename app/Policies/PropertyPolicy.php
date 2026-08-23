@@ -9,12 +9,18 @@ use Illuminate\Auth\Access\Response;
 
 class PropertyPolicy
 {
+
+  public function viewTrashed(User $user) {
+    return $user->role === UserRole::Admin->value;
+  }
+
   public function update(User $user, Property $property): bool
   {
     return $user->id === $property->user_id;
   }
 
-  public function delete(User $user, Property $property): bool {
+  public function delete(User $user, Property $property): bool
+  {
     return $user->id === $property->user_id || $user->role === UserRole::Admin->value;
   }
 

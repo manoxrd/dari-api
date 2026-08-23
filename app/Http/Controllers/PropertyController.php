@@ -15,7 +15,18 @@ class PropertyController extends Controller
   {
     $perPage = min($request->integer('per_page', 15), 30);
 
-    return PropertyResource::collection(Property::with('user')->paginate($perPage));
+    $price_range = [
+      'min' => $request->min_price,
+      'max' => $request->max_price
+    ];
+
+    $properties = Property::when($request->purpose, fn($query, $value) => $query->where('purpose', $value))
+      ->when($request->bathrooms, fn($query, $value) => $query->where('bathrooms', $value))
+      ->when($request->bedrooms, fn($query, $value) => $query->where('bedrooms', $value))
+      ->when($price_range, fn($query, array $price) => $query->where('price', '>=', $price['min'])->where('price', '<=', $price['max']))
+      ->with('user')->paginate($perPage)->withQueryString();
+
+    return PropertyResource::collection($properties);
   }
 
   public function store(StorePropertyRequest $request)
@@ -45,7 +56,7 @@ class PropertyController extends Controller
   public function update(UpdatePropertyRequest $request, Property $property)
   {
 
-    if($request->user()->cannot('update', $property)) abort(403);
+    if ($request->user()->cannot('update', $property)) abort(403);
 
     $validated = $request->validated();
 
@@ -63,8 +74,10 @@ class PropertyController extends Controller
     return new PropertyResource($property)->response();
   }
 
-  public function destroy(Property $property) {
-    
+  public function destroy(Property $property)
+  {
+    if (auth()->guard()->user()->cannot('delete', $property)) abort(403);
+
     $property->delete();
     return response()->noContent();
   }
