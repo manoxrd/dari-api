@@ -15,7 +15,7 @@ class PropertyPolicy
   }
 
   public function delete(User $user, Property $property): bool {
-    return $user->id === $property->user_id && $user->role === UserRole::Admin;
+    return $user->id === $property->user_id || $user->role === UserRole::Admin->value;
   }
 
   public function restore(User $user, Property $property): bool
