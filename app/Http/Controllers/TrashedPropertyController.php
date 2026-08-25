@@ -12,35 +12,39 @@ class TrashedPropertyController extends Controller
   {
     if ($request->user()->cannot('viewTrashed', Property::class)) abort(403);
 
-    $per_page = min($request->integer('per_page', 15), 30);
+
+    $validated = $request->validated();
+
+    $perPage = $request->integer('per_page', 15);
 
     $price_range = [
-      'min' => $request->min_price,
-      'max' => $request->max_price
+      'min' => $validated['min_price'] ?? null,
+      'max' => $validated['max_price'] ?? null
     ];
 
-    $properties = Property::onlyTrashed()
-      ->when($request->purpose, fn($query, $value) => $query->where('purpose', $value))
-      ->when($request->bathrooms, fn($query, $value) => $query->where('bathrooms', $value))
-      ->when($request->bedrooms, fn($query, $value) => $query->where('bedrooms', $value))
+    $properties = Property::onlyTrashed()->when($validated['purpose'] ?? null, fn($query, $value) => $query->where('purpose', $value))
+      ->when($validated['bathrooms'] ?? null, fn($query, $value) => $query->where('bathrooms', $value))
+      ->when($validated['bedrooms'] ?? null, fn($query, $value) => $query->where('bedrooms', $value))
       ->when(array_filter($price_range), fn($query, array $price) => $query->whereBetween('price', $price))
-      ->with('user')->paginate($per_page)->withQueryString();
+      ->with('user')->paginate($perPage)->withQueryString();
 
     return PropertyResource::collection($properties);
   }
 
-  public function restore(Request $request, Property $property) {
-    if($request->user()->cannot('restore', $property)) abort(403);
-    if(!$property->trashed()) return response(['message' => "This isn't a trashed property"], 422);
+  public function restore(Request $request, Property $property)
+  {
+    if ($request->user()->cannot('restore', $property)) abort(403);
+    if (!$property->trashed()) return response(['message' => "This isn't a trashed property"], 422);
 
     $property->restore();
 
     return new PropertyResource($property);
   }
 
-  public function forceDelete(Request $request, Property $property) {
-    if($request->user()->cannot('forceDelete', $property)) abort(403);
-    if(!$property->trashed()) return response(['message' => "This isn't a trashed property"], 422);
+  public function forceDelete(Request $request, Property $property)
+  {
+    if ($request->user()->cannot('forceDelete', $property)) abort(403);
+    if (!$property->trashed()) return response(['message' => "This isn't a trashed property"], 422);
 
     $property->forceDelete();
 
