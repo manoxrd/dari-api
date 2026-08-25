@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -21,6 +23,16 @@ class Property extends Model
   public function user(): BelongsTo
   {
     return $this->belongsTo(User::class);
+  }
+
+  #[Scope]
+  protected function filters(Builder $query, array $data, array $price_range): Builder
+  {
+    return $query
+      ->when($data['purpose'] ?? null, fn($q, $v) => $q->where('purpose', $v))
+      ->when($data['bathrooms'] ?? null, fn($q, $v) => $q->where('bathrooms', $v))
+      ->when($data['bedrooms'] ?? null, fn($q, $v) => $q->where('bedrooms', $v))
+      ->when(array_filter($price_range), fn($q, array $price) => $q->whereBetween('price', $price));
   }
 
   protected function thumbnailUrl(): Attribute

@@ -24,11 +24,7 @@ class PropertyController extends Controller
       'max' => $validated['max_price'] ?? null
     ];
 
-    $properties = Property::when($validated['purpose'] ?? null, fn($query, $value) => $query->where('purpose', $value))
-      ->when($validated['bathrooms'] ?? null, fn($query, $value) => $query->where('bathrooms', $value))
-      ->when($validated['bedrooms'] ?? null, fn($query, $value) => $query->where('bedrooms', $value))
-      ->when(array_filter($price_range), fn($query, array $price) => $query->whereBetween('price', $price))
-      ->with('user')->paginate($perPage)->withQueryString();
+    $properties = Property::filters($validated, $price_range)->with('user')->paginate($perPage)->withQueryString();
 
     return PropertyResource::collection($properties);
   }
@@ -40,8 +36,6 @@ class PropertyController extends Controller
     if ($request->hasFile('thumbnail')) {
 
       $validated['thumbnail'] = $request->file('thumbnail')->store('thumbnails', 'public');
-    } else {
-      unset($validated['thumbnail']);
     }
 
     $property = $request->user()->properties()->create($validated);

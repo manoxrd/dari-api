@@ -4,14 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\PropertyResource;
 use App\Models\Property;
+use App\Http\Requests\FilterPropertyRequest;
 use Illuminate\Http\Request;
 
 class TrashedPropertyController extends Controller
 {
-  public function index(Request $request)
+  public function index(FilterPropertyRequest $request)
   {
     if ($request->user()->cannot('viewTrashed', Property::class)) abort(403);
-
 
     $validated = $request->validated();
 
@@ -22,10 +22,8 @@ class TrashedPropertyController extends Controller
       'max' => $validated['max_price'] ?? null
     ];
 
-    $properties = Property::onlyTrashed()->when($validated['purpose'] ?? null, fn($query, $value) => $query->where('purpose', $value))
-      ->when($validated['bathrooms'] ?? null, fn($query, $value) => $query->where('bathrooms', $value))
-      ->when($validated['bedrooms'] ?? null, fn($query, $value) => $query->where('bedrooms', $value))
-      ->when(array_filter($price_range), fn($query, array $price) => $query->whereBetween('price', $price))
+    $properties = Property::onlyTrashed()
+      ->filters($validated, $price_range)
       ->with('user')->paginate($perPage)->withQueryString();
 
     return PropertyResource::collection($properties);
@@ -43,7 +41,7 @@ class TrashedPropertyController extends Controller
 
   public function forceDelete(Request $request, Property $property)
   {
-    if ($request->user()->cannot('forceDelete', $property)) abort(403);
+    if ($request->user()->cannot('forceDelete', Property::class)) abort(403);
     if (!$property->trashed()) return response(['message' => "This isn't a trashed property"], 422);
 
     $property->forceDelete();
