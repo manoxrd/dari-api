@@ -15,6 +15,7 @@ Route::name('v1.')->prefix('v1')->group(function () {
 
   Route::middleware('throttle:10,1')->group(function () {
     Route::post('auth/register', [AuthController::class, 'register'])->name('auth.register');
+    Route::post('auth/login', [AuthController::class, 'login'])->name('auth.login');
   });
   
   Route::middleware('throttle:60,1')->group(function () {
